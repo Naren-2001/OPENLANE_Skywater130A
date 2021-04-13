@@ -11,7 +11,7 @@ What is Openlane?
 
 OPENLANE is a RTL to GDSII flow that contains yosys,magic,fault,netgen,Openroad,SPEF_extractor,Klayout for designing packages and verifying chip..
 
-DAY 1: Inception of open-source EDA, OpenLANE and Sky130 PDK
+**DAY 1: Inception of open-source EDA, OpenLANE and Sky130 PDK**
 
 First day of workshop starts with Basics of EDA tools,introduction to openlane and Skywater pdks.
 Entire flow of the physical design is defined
