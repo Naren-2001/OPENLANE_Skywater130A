@@ -194,7 +194,172 @@ Placement is performed using the command
 run_placement
 
 It uses HPWL-half perimeter wire length to perform placement
-during the placement process the OVFL(overflow) must decrease
+during the placement process the OVFL(overflow) must decrease.
+
+PDN generally done during floorplan.but in our process its done after post clock tree synthesis
+
+**DAY 3 : Design library cell using Magic Layout and ngspice characterization**
+
+![image](https://user-images.githubusercontent.com/82043108/114557232-17dfe800-9c87-11eb-97a7-838d5db073b1.png)
+
+In this workshop,Inverter cell is characterized and plugged into picorv32a and observe whether the design accepts the inverter this is the main objective of  the workshop
+
+Change the input and output pins by using the variable FP_IO_MODE
+
+Sky130 basic layers layout and LEF are introduced
+
+![image](https://user-images.githubusercontent.com/82043108/114558754-a30dad80-9c88-11eb-9d3d-589f58569652.png)
+
+press s twice on the layers to know where it is connected 
+
+.LEF - provides only the location of stdcells as placement requires only places the cells.it protects ip(intellectual propety) from vendors as it does not reveal the logic
+
+Stdcells are created and spice file is extracted
+
+to create a box of particular dimension use the command below in tkconsole
+
+property FIXED_BBOX (llx lly urx ury)
+
+Stdcells are connected using metal 1
+
+licon-connects locali and metal1
+
+nsubstrate-connects nwell and locali
+
+To place a layer move the cursor to that area and press middle mouse button
+
+To extract the layout,the below command is used 
+ 
+ extract all
+
+To convert it to spice following commands are used
+
+* ext2spice cthresh 0 rthresh 0 - extracts parasitic capacitor
+* ext2spice 
+
+Spice deck is created using sky130tech
+
+library files are included 
+
+To give a Pulse input,below format is used 
+ PULSE(lowvoltage highvoltage starttime risetime falltime Ontime Timeperiod) 
+
+To make a trans simulation 
+
+.tran 1n 20n
+
+Rise time is the time difference between 20% of vdd and 80% of vdd
+
+Fall time is the time difference between 80% of vdd and 20% of vdd
+
+propagation delay is the time difference between 50% of output and 50% of input
+
+![image](https://user-images.githubusercontent.com/82043108/114564129-ad7e7600-9c8d-11eb-8937-ab6fbd3fdf9f.png)
+![image](https://user-images.githubusercontent.com/82043108/114564164-b53e1a80-9c8d-11eb-96b0-6882dd263cda.png)
+![image](https://user-images.githubusercontent.com/82043108/114564207-bec78280-9c8d-11eb-854d-c786e662a1cc.png)
+![image](https://user-images.githubusercontent.com/82043108/114564248-c71fbd80-9c8d-11eb-8774-20e0916a05e7.png)
+![image](https://user-images.githubusercontent.com/82043108/114564296-d0a92580-9c8d-11eb-9173-9780d3f5ba75.png)
+![image](https://user-images.githubusercontent.com/82043108/114564358-ddc61480-9c8d-11eb-940b-db40a5ee4bd9.png)
+
+**Day 4 :  Pre-layout timing analysis and importance of good clock tree**
+
+Guidelines for placement:
+
+* input and output port must be at the intersection of vertical and horizontal tracks
+* Width of standard cell must be odd multiples of track horizontal pitch
+* Height of standard cell must be odd multiples of vertical pitch
+
+Tracks are metal traces used during Routing stage
+
+tracks.info in sky130_fd_sc_hd contains layers of metal used during routing
+
+lil x 0.32 .46 (coordinate,pitch)
+
+press g to see the grids.
+
+To know whether the inverter cell meets the guidelines.grids are customized to parameters of metal layers
+
+Ports are required by lef file
+
+ports-pins after extraction of lef file
+
+port number defines order in which ports are written in lef file
+
+port class may be input,output or inout
+
+port use may be signal,power,ground
+
+lef file is created in and copied to /picorv32a/src
+
+Timing libraries and steps to include new cell in synthesis are introduced
+
+sky230_fd_sc_hd_typical.lib contains characterization of cells such as cell fall,rise,transition,capacitance
+
+copy .lib files to src
+
+modify config.tcl to include libraries 
+
+Again start the flow
+
+Now before synthesis two lines are added to include extra lef file in the flow
+
+* set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+* add_lefs -src $lefs
+
+Again run_synthesis
+
+Mapping of inverter cell is done by (LIB_SYNTH) to the openlane flow
+
+After the synthesis,we can see the inverter cell included in design
+
+But slack violation occurs
+
+![image](https://user-images.githubusercontent.com/82043108/114571140-0d781b00-9c94-11eb-9fa9-3ffd80d1fc26.png)
+![image](https://user-images.githubusercontent.com/82043108/114571200-1bc63700-9c94-11eb-88fa-19aebd708fcd.png)
+![image](https://user-images.githubusercontent.com/82043108/114571228-2254ae80-9c94-11eb-8ddc-87cebea44211.png)
+
+Configuration of synthesis settings to fix slack and vsd inverter:
+
+Observe the timing report and observe delay build up 
+
+Use (SYNTH_STRATEGY),(SYNTH_BUFFERING) and (SYNTH_SIZING) to improve timing.so here there is a tradeoff between delay and area of core
+
+Again synthesis is done..so its like a iterative process
+![image](https://user-images.githubusercontent.com/82043108/114572010-bde61f00-9c94-11eb-8fee-8dc6054f1866.png)
+
+slack is reduced now the following steps are done
+
+* run_floorplan 
+* run_placement  
+
+.def file is created in /results/placement
+
+Opened magic tool and found the vsd inverter
+
+![image](https://user-images.githubusercontent.com/82043108/114572756-685e4200-9c95-11eb-900d-1a9d56485cb1.png)
+
+Select the inverter cell and check whether it is correctly placed with respect to the other cells(use expand command)
+
+Post synthesis timing analysis is done using OpenSTA
+
+During Clock tree synthesis clock buffers are used hence netlist is modified and hence new verilog file(.v file)
+
+Since timing analysis is done outside flow,variables need to be defined
+
+sta pre_sta.conf-performs timing analysis
+
+Optimization of synthesized file to reduce setup violations
+
+Hold analysis has no significance as CTS is not done
+so reduce setup slack
+
+Delay of cell depends on input slew and output capacitace
+
+observe the delay build up 
+
+Fanout is decreased to improve timing
+
+again run_synthesis negative slack is reduced but not enough.So upsize the buffers to improve timing using command replace_cell netname buffsize
 
 
     
