@@ -260,6 +260,8 @@ propagation delay is the time difference between 50% of output and 50% of input
 ![image](https://user-images.githubusercontent.com/82043108/114564248-c71fbd80-9c8d-11eb-8774-20e0916a05e7.png)
 ![image](https://user-images.githubusercontent.com/82043108/114564296-d0a92580-9c8d-11eb-9173-9780d3f5ba75.png)
 ![image](https://user-images.githubusercontent.com/82043108/114564358-ddc61480-9c8d-11eb-940b-db40a5ee4bd9.png)
+![image](https://user-images.githubusercontent.com/82043108/114587027-e117cb00-9ca2-11eb-88a3-d7816fabb1e1.png)
+
 
 **Day 4 :  Pre-layout timing analysis and importance of good clock tree**
 
