@@ -359,7 +359,95 @@ observe the delay build up
 
 Fanout is decreased to improve timing
 
-again run_synthesis negative slack is reduced but not enough.So upsize the buffers to improve timing using command replace_cell netname buffsize
+Again run_synthesis negative slack is reduced but not enough.So upsize the buffers to improve timing using command replace_cell netname buffsize and run_synthesis
+use report_checks to know the capacitance slew and input pins
+
+Now the slack is reduced
+
+![image](https://user-images.githubusercontent.com/82043108/114578514-92663300-9c9a-11eb-9c3f-670f318ab085.png)
+
+floorplan,placement and cts is done.
+
+write_verilog <location> to update the netlist and do floorplan,placement and cts
+ 
+ CTS_TOLERANCE - Tradeoff between QOR(Quality of result) and runtime
+ 
+ While making the command run_cts.Various scripts will run.these scripts are under tcl.commands/cts.tcl
+ 
+ Actually the openroad is doing the steps from floorplanning to global routing
+ 
+ open or_cts.tcl - to understand flow behind the command run_cts
+ 
+ BUF_LIST defines the list of buffers
+ 
+ CTS is done for typical library
+ 
+Analysed timing with real clock using OpenSTA
+
+Timing analysis is done in openroad
+
+.db file is created using the .lef and .def 
+
+After performing CTS,Setup and hold slack is increased.Setup slack can be decreased by changing CLK_PERIOD.After routing the hold slack will be decreased as resistance and capacitance increases delay
+
+While removing buffer of size 1 ,slacks become positive this reveals the impact of bigger buffers on setup and hold timing
+
+To know the clock skew use "report_clock_skew -setup 
+
+![image](https://user-images.githubusercontent.com/82043108/114581923-c000ab80-9c9d-11eb-8d55-7fbb2ef2440e.png)
+![image](https://user-images.githubusercontent.com/82043108/114581962-ca22aa00-9c9d-11eb-8570-d7d0fb2472b7.png)
+![image](https://user-images.githubusercontent.com/82043108/114582159-f76f5800-9c9d-11eb-808c-b36234d785c8.png)
+
+DAY 5 : Routing
+
+run_cts is completed 
+
+see the (CURRENT_DEF) and check whether it is picorv32a_cts.def
+
+Now do the command "run_pdn" to make power distribution
+
+The standard must be present between rails (vdd and gnd) and hence standard cells must be multiples of the gap
+
+During pdn vdd and gnd are provided to stdcells by using pads,rings,straps,rails
+
+Now do the command "run_routing"
+
+Use "ROUTING_STRATEGY" to do routing
+
+Routing is divided into two stages
+ * Global-(FAST_ROUTE)
+ * Detailed-Tritonroute
+
+TritonRoute use MILP algorithm to panel routing with inter_layer and intra_layer roting
+
+The output of fastroute is route guides
+
+Access points and access point clusters are defined
+
+After routing is finished,remove the vilation manually
+
+Post route STA analysis is done
+
+extract parasitics using Python API
+
+so .spef is created 
+
+read_spef to know the parasitics of wires
+
+![image](https://user-images.githubusercontent.com/82043108/114585387-3521b000-9ca1-11eb-88e4-344e18a36418.png)
+
+![image](https://user-images.githubusercontent.com/82043108/114585450-45398f80-9ca1-11eb-9a63-d88731b6c062.png)
+
+![image](https://user-images.githubusercontent.com/82043108/114585488-55516f00-9ca1-11eb-8c90-c446fc1d3fc4.png)
+
+![image](https://user-images.githubusercontent.com/82043108/114585515-5d111380-9ca1-11eb-9f48-c9622d3a56bb.png)
+
+![image](https://user-images.githubusercontent.com/82043108/114585572-6a2e0280-9ca1-11eb-80ac-bbbf9ede6739.png)
+
+Acknowledgement
+*  Kunal Ghosh - Co-founder (VSD Corp. Pvt. Ltd)
+*  Praharsha Mahurkar - Teaching Assistant
+*  Akurathi Radhika - Teaching assistant
 
 
     
