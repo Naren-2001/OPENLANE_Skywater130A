@@ -28,7 +28,46 @@ The inputs to the design flow are
  * .lef files
  * .tlef files
  * Libraries of standard cells
+
 Output of the flow is GDSII file (.gds)
+
+.gds file is given to foundry for manufacturing the chip
+
+Stages of Openlane Flow
+* Synthesis
+  * yosys-Performs RTL synthesis using GTECH mapping
+  * abc-maps the cells to standard cells described in PDK(Skywater130) and produce netlsit
+  * OpenSTA-performs timing analysis on the resulting netlist
+  * Fault-Design for test
+  
+* Floorplan
+  * init_fp-Defines the core area for macros and rows for placement and tracks for routing
+  * IOplacer-places the macro and output ports
+  * PDN-Power Distribution network
+  * tapcells-insert well taps and decap cells
+  
+* Placement(Global and Detailed)
+  * RePlace-performs global placement
+  * Resizer-performs optimizations on the design
+  * OpenPhySyn-perform timing optimization
+  * OpenDP-performs detailed placement
+  
+* Clock tree synthesis
+  * TritonCTS-synthesizes clock distribution network
+
+* Routing
+  * FastRoute-performs global routing
+  * TritonRoute-perfoms detailed routing
+  * SPEF Extractor-perfoms SPEF extraction that include parasitics extraction
+  
+* GDSII
+  * Magic-streams out the final GDSII layout
+  
+* Checks
+  * Magic-performs DRC and antenna check
+  * Netgen-performs LVS check(Layout versus synthesis)
+  
+Skywater uses six metal layer to perform CTS,PDN,Routing. 
 
 
 
