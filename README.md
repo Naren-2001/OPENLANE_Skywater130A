@@ -450,6 +450,6 @@ Acknowledgement
 *  Kunal Ghosh - Co-founder (VSD Corp. Pvt. Ltd)
 *  Praharsha Mahurkar - Teaching Assistant
 *  Akurathi Radhika - Teaching assistant
-
+*  Nickson Jose - VLSI engineer
 
     
